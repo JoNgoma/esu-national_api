@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -10,6 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ApiResource]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -31,6 +35,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, EducativeSysteme>
+     */
+    #[ORM\OneToMany(targetEntity: EducativeSysteme::class, mappedBy: 'user')]
+    private Collection $educativeSystemes;
+
+    public function __construct()
+    {
+        $this->educativeSystemes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -103,5 +118,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, EducativeSysteme>
+     */
+    public function getEducativeSystemes(): Collection
+    {
+        return $this->educativeSystemes;
+    }
+
+    public function addEducativeSysteme(EducativeSysteme $educativeSysteme): static
+    {
+        if (!$this->educativeSystemes->contains($educativeSysteme)) {
+            $this->educativeSystemes->add($educativeSysteme);
+            $educativeSysteme->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEducativeSysteme(EducativeSysteme $educativeSysteme): static
+    {
+        if ($this->educativeSystemes->removeElement($educativeSysteme)) {
+            // set the owning side to null (unless already changed)
+            if ($educativeSysteme->getUser() === $this) {
+                $educativeSysteme->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
