@@ -7,44 +7,60 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']]
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     /**
      * @var Collection<int, EducativeSysteme>
      */
     #[ORM\OneToMany(targetEntity: EducativeSysteme::class, mappedBy: 'user')]
+    #[Groups(['user:read'])] // champs présent uniquement en lecture
     private Collection $educativeSystemes;
+
+    /**
+     * @var Collection<int, University>
+     */
+    #[ORM\OneToMany(targetEntity: University::class, mappedBy: 'user')]
+    #[Groups(['user:read'])]
+    private Collection $universities;
+
+    #[ORM\ManyToOne(inversedBy: 'user')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?Province $province = null;
 
     public function __construct()
     {
         $this->educativeSystemes = new ArrayCollection();
+        $this->universities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,45 +76,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -107,22 +105,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
 
-    /**
-     * @return Collection<int, EducativeSysteme>
-     */
     public function getEducativeSystemes(): Collection
     {
         return $this->educativeSystemes;
@@ -141,11 +131,52 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeEducativeSysteme(EducativeSysteme $educativeSysteme): static
     {
         if ($this->educativeSystemes->removeElement($educativeSysteme)) {
-            // set the owning side to null (unless already changed)
             if ($educativeSysteme->getUser() === $this) {
                 $educativeSysteme->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, University>
+     */
+    public function getUniversities(): Collection
+    {
+        return $this->universities;
+    }
+
+    public function addUniversity(University $university): static
+    {
+        if (!$this->universities->contains($university)) {
+            $this->universities->add($university);
+            $university->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUniversity(University $university): static
+    {
+        if ($this->universities->removeElement($university)) {
+            // set the owning side to null (unless already changed)
+            if ($university->getUser() === $this) {
+                $university->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getProvince(): ?Province
+    {
+        return $this->province;
+    }
+
+    public function setProvince(?Province $province): static
+    {
+        $this->province = $province;
 
         return $this;
     }
