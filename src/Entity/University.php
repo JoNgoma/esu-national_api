@@ -14,17 +14,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Table(name: '`university`')]
 #[ApiResource(
-    normalizationContext: [
-        'groups' => ['university:read', 'user:read'],
-        'enable_max_depth' => true,
-        'max_depth' => 2
-    ],
-    denormalizationContext: [
-        'groups' => ['university:write'],
-        'enable_max_depth' => true,
-        'max_depth' => 2
-    ]
+    normalizationContext: ['groups' => ['university:read']],
+    denormalizationContext: ['groups' => ['university:write']]
 )]
+
 #[ORM\Entity(repositoryClass: UniversityRepository::class)]
 class University
 {
@@ -35,7 +28,7 @@ class University
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['university:read', 'university:write', 'user:read'])]
+    #[Groups(['domain:read', 'faculte:read', 'province:read', 'educative_systeme:read', 'university:read', 'university:write'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -59,17 +52,40 @@ class University
      * @var Collection<int, EducativeSysteme>
      */
     #[ORM\ManyToMany(targetEntity: EducativeSysteme::class, inversedBy: 'universities')]
-    #[groups(['university:read', 'university:write'])]
+    #[groups(['university:write'])]
     private Collection $systeme;
 
     #[ORM\ManyToOne(inversedBy: 'universities')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['university:read', 'university:write'])]
+    #[Groups(['domain:read', 'faculte:read', 'university:write', 'university:read'])]
     private ?Province $province = null;
+
+    /**
+     * @var Collection<int, Faculte>
+     */
+    #[ORM\ManyToMany(targetEntity: Faculte::class, mappedBy: 'university')]
+    #[groups(['university:read'])]
+    private Collection $facultes;
+
+    /**
+     * @var Collection<int, Domain>
+     */
+    #[ORM\ManyToMany(targetEntity: Domain::class, mappedBy: 'university')]
+    #[groups(['university:read'])]
+    private Collection $domains;
+
+    /**
+     * @var Collection<int, Card>
+     */
+    #[ORM\OneToMany(targetEntity: Card::class, mappedBy: 'university')]
+    private Collection $cards;
 
     public function __construct()
     {
         $this->systeme = new ArrayCollection();
+        $this->facultes = new ArrayCollection();
+        $this->domains = new ArrayCollection();
+        $this->cards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -169,6 +185,90 @@ class University
     public function setProvince(?Province $province): static
     {
         $this->province = $province;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Faculte>
+     */
+    public function getFacultes(): Collection
+    {
+        return $this->facultes;
+    }
+
+    public function addFaculte(Faculte $faculte): static
+    {
+        if (!$this->facultes->contains($faculte)) {
+            $this->facultes->add($faculte);
+            $faculte->addUniversity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFaculte(Faculte $faculte): static
+    {
+        if ($this->facultes->removeElement($faculte)) {
+            $faculte->removeUniversity($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Domain>
+     */
+    public function getDomains(): Collection
+    {
+        return $this->domains;
+    }
+
+    public function addDomain(Domain $domain): static
+    {
+        if (!$this->domains->contains($domain)) {
+            $this->domains->add($domain);
+            $domain->addUniversity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomain(Domain $domain): static
+    {
+        if ($this->domains->removeElement($domain)) {
+            $domain->removeUniversity($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Card>
+     */
+    public function getCards(): Collection
+    {
+        return $this->cards;
+    }
+
+    public function addCard(Card $card): static
+    {
+        if (!$this->cards->contains($card)) {
+            $this->cards->add($card);
+            $card->setUniversity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCard(Card $card): static
+    {
+        if ($this->cards->removeElement($card)) {
+            // set the owning side to null (unless already changed)
+            if ($card->getUniversity() === $this) {
+                $card->setUniversity(null);
+            }
+        }
 
         return $this;
     }

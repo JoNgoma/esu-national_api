@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read']],
@@ -27,7 +28,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['educative_systeme:read', 'user:read', 'user:write', 'university:read'])]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -57,10 +58,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?Province $province = null;
 
+    /**
+     * @var Collection<int, Card>
+     */
+    #[ORM\OneToMany(targetEntity: Card::class, mappedBy: 'user')]
+    private Collection $cards;
+
     public function __construct()
     {
         $this->educativeSystemes = new ArrayCollection();
         $this->universities = new ArrayCollection();
+        $this->cards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -177,6 +185,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProvince(?Province $province): static
     {
         $this->province = $province;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Card>
+     */
+    public function getCards(): Collection
+    {
+        return $this->cards;
+    }
+
+    public function addCard(Card $card): static
+    {
+        if (!$this->cards->contains($card)) {
+            $this->cards->add($card);
+            $card->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCard(Card $card): static
+    {
+        if ($this->cards->removeElement($card)) {
+            // set the owning side to null (unless already changed)
+            if ($card->getUser() === $this) {
+                $card->setUser(null);
+            }
+        }
 
         return $this;
     }

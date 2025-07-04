@@ -9,6 +9,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;  
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+
 
 
 #[ORM\Table(name: 'province')]
@@ -26,7 +28,7 @@ class Province
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['province:read', 'province:write'])]
+    #[Groups(['domain:read', 'faculte:read', 'university:read', 'province:read', 'province:write'])]
     private ?string $name = null;
 
     /**
@@ -40,13 +42,20 @@ class Province
      * @var Collection<int, User>
      */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'province')]
-    #[Groups(['province:read'])]
+    // #[Groups(['province:read'])]
     private Collection $user;
+
+    /**
+     * @var Collection<int, Card>
+     */
+    #[ORM\OneToMany(targetEntity: Card::class, mappedBy: 'province')]
+    private Collection $cards;
 
     public function __construct()
     {
         $this->universities = new ArrayCollection();
         $this->user = new ArrayCollection();
+        $this->cards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -120,6 +129,36 @@ class Province
             // set the owning side to null (unless already changed)
             if ($user->getProvince() === $this) {
                 $user->setProvince(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Card>
+     */
+    public function getCards(): Collection
+    {
+        return $this->cards;
+    }
+
+    public function addCard(Card $card): static
+    {
+        if (!$this->cards->contains($card)) {
+            $this->cards->add($card);
+            $card->setProvince($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCard(Card $card): static
+    {
+        if ($this->cards->removeElement($card)) {
+            // set the owning side to null (unless already changed)
+            if ($card->getProvince() === $this) {
+                $card->setProvince(null);
             }
         }
 
