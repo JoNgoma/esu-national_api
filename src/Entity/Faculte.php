@@ -27,7 +27,7 @@ class Faculte
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['university:read', 'faculte:read', 'faculte:write'])]
+    #[Groups(['departement:read', 'university:read', 'faculte:read', 'faculte:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]

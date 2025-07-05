@@ -40,6 +40,7 @@ class Departement
 
     #[ORM\ManyToOne(inversedBy: 'departements')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['departement:read', 'departement:write'])]
     private ?Faculte $faculte = null;
 
     /**

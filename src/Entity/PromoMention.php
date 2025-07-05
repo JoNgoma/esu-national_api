@@ -39,6 +39,10 @@ class PromoMention
     #[ORM\ManyToOne(inversedBy: 'promoMentions')]
     private ?Card $card = null;
 
+    #[ORM\Column(length: 11)]
+    #[Groups(['card:read', 'card:write'])]
+    private ?string $academicYear = null;
+
     public function __construct()
     {
         $this->promo = new ArrayCollection();
@@ -81,6 +85,17 @@ class PromoMention
     {
         $this->card = $card;
 
+        return $this;
+    }
+
+    public function getAcademicYear(): ?string
+    {
+        return $this->academicYear;
+    }
+
+    public function setAcademicYear(string $academicYear): static
+    {
+        $this->academicYear = $academicYear;
         return $this;
     }
 }

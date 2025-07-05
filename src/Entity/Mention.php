@@ -30,6 +30,7 @@ class Mention
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'mentions')]
+    #[Groups(['mention:read','mention:write'])]
     private ?EducativeSysteme $systeme = null;
 
     /**

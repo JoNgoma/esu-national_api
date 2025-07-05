@@ -35,6 +35,7 @@ class Spinneret
 
     #[ORM\ManyToOne(inversedBy: 'spinnerets')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['spinneret:read','spinneret:write'])]
     private ?Domain $domain = null;
 
     /**
