@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 
 #[ORM\Table(name:'domain')]
+#[ORM\UniqueConstraint(name: 'UNIQ_DOMAIN_NAME', fields: ['name'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['domain:read']],
     denormalizationContext: ['groups' => ['domain:write']]
@@ -27,7 +28,7 @@ class Domain
 
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['spinneret:read', 'university:read', 'domain:read', 'domain:write'])]
     private ?string $name = null;
 

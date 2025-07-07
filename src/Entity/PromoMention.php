@@ -26,12 +26,12 @@ class PromoMention
     #[Groups(['promo_mention:read'])]
     private ?int $id = null;
 
-    #[ORM\OneToOne(targetEntity: Promo::class)]
+    #[ORM\OneToOne(targetEntity: Promo::class, inversedBy: 'promoMention')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['card:read', 'card:write'])]
     private ?Promo $promo = null;
 
-    #[ORM\OneToOne(targetEntity: Mention::class)]
+    #[ORM\OneToOne(targetEntity: Mention::class, inversedBy: 'promoMention')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['card:read', 'card:write'])]
     private ?Mention $mention = null;
@@ -45,8 +45,7 @@ class PromoMention
 
     public function __construct()
     {
-        $this->promo = new ArrayCollection();
-        $this->mention = new ArrayCollection();
+        // Empty constructor - no initialization needed for OneToOne relationships
     }
 
     public function getId(): ?int

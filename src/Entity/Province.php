@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 
 #[ORM\Table(name: 'province')]
+#[ORM\UniqueConstraint(name: 'UNIQ_PROVINCE_NAME', fields: ['name'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['province:read']],
     denormalizationContext: ['groups' => ['province:write']]
@@ -27,7 +28,7 @@ class Province
     #[Groups(['province:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['domain:read', 'faculte:read', 'university:read', 'province:read', 'province:write'])]
     private ?string $name = null;
 

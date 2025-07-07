@@ -69,7 +69,7 @@ class Card
     /**
      * @var Collection<int, PromoMention>
      */
-    #[ORM\OneToMany(targetEntity: PromoMention::class, mappedBy: 'card')]
+    #[ORM\OneToMany(targetEntity: PromoMention::class, mappedBy: 'card', cascade: ['persist'])]
     #[Groups(['card:read', 'card:write'])]
     private Collection $promoMentions;
 
@@ -325,6 +325,21 @@ class Card
     public function setIsMindCommission(bool $isMindCommission): static
     {
         $this->isMindCommission = $isMindCommission;
+        return $this;
+    }
+
+    #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['card:read', 'card:write'])]
+    private ?string $matricule = null;
+
+    public function getMatricule(): ?string
+    {
+        return $this->matricule;
+    }
+
+    public function setMatricule(string $matricule): static
+    {
+        $this->matricule = $matricule;
         return $this;
     }
 }

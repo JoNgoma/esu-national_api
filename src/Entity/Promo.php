@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Table(name: 'promo')]
+#[ORM\UniqueConstraint(name: 'UNIQ_PROMO_NAME', fields: ['name'])]
 #[ApiResource
 (
     normalizationContext: ['groups' => ['promo:read']],
@@ -26,8 +27,8 @@ class Promo
     #[Groups(['promo:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['promo:read','promo:write'])]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['card:read', 'promo:read','promo:write'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'promos')]

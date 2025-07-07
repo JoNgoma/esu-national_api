@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Table(name: 'departement')]
+#[ORM\UniqueConstraint(name: 'UNIQ_DEPARTEMENT_NAME', columns: ['name'])]
 #[Apiresource(
     normalizationContext: ['groups' => ['departement:read']],
     denormalizationContext: ['groups' => ['departement:write']],
@@ -30,7 +31,7 @@ class Departement
     #[Groups(['departement:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['departement:read', 'departement:write'])]
     private ?string $name = null;
 

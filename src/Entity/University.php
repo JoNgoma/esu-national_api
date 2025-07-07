@@ -13,6 +13,9 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 
 #[ORM\Table(name: '`university`')]
+#[ORM\UniqueConstraint(name: 'UNIQ_UNIVERSITY_NAME', fields: ['name'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_UNIVERSITY_POSTOFFICEBOX', fields: ['postOfficeBox'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_UNIVERSITY_PHONE', fields: ['phone'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['university:read']],
     denormalizationContext: ['groups' => ['university:write']]
@@ -27,11 +30,11 @@ class University
     #[Groups(['university:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['domain:read', 'faculte:read', 'province:read', 'educative_systeme:read', 'university:read', 'university:write'])]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true, unique: true)]
     #[Groups(['university:read', 'university:write'])]
     private ?string $postOfficeBox = null;
 
@@ -39,7 +42,7 @@ class University
     #[Groups(['university:read', 'university:write'])]
     private ?string $adress = null;
 
-    #[ORM\Column(length: 16)]
+    #[ORM\Column(length: 16, unique: true)]
     #[Groups(['university:read', 'university:write'])]
     private ?string $phone = null;
 

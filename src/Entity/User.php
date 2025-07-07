@@ -13,8 +13,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_PHONE', fields: ['phone'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_MATRICULE', fields: ['matricule'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:write']]
@@ -27,9 +28,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $lastName = null;
+
+    #[ORM\Column(length: 180, unique: true)]
     #[Groups(['educative_systeme:read', 'user:read', 'user:write', 'university:read'])]
     private ?string $email = null;
+
+    #[ORM\Column(length: 16, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $phone = null;
+
+    #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $matricule = null;
 
     #[ORM\Column]
     #[Groups(['user:read', 'user:write'])]
@@ -216,6 +237,62 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    // Add getters and setters for the new fields
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): static
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getMatricule(): ?string
+    {
+        return $this->matricule;
+    }
+
+    public function setMatricule(string $matricule): static
+    {
+        $this->matricule = $matricule;
         return $this;
     }
 }

@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Table(name:'spinneret')]
+#[ORM\UniqueConstraint(name: 'UNIQ_SPINNERET_NAME', fields: ['name'])]
 #[ApiResource(
     normalizationContext:['groups'=>['spinneret:read']],
     denormalizationContext:['groups'=>['spinneret:write']],
@@ -25,7 +26,7 @@ class Spinneret
     #[Groups(['spinneret:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['spinneret:read','spinneret:write'])]
     private ?string $name = null;
 

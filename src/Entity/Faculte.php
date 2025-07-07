@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Table(name: 'faculte')]
 #[ORM\Entity(repositoryClass: FaculteRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_FACULTE_NAME', columns: ['name'])]
 
 #[ApiResource(
     normalizationContext: ['groups'=> ['faculte:read']],
@@ -26,7 +27,7 @@ class Faculte
     #[Groups(['faculte:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['departement:read', 'university:read', 'faculte:read', 'faculte:write'])]
     private ?string $name = null;
 

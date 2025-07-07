@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Table(name: '`mention`')]
+#[ORM\UniqueConstraint(name: 'UNIQ_MENTION_NAME', fields: ['name'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['mention:read']],
     denormalizationContext: ['groups' => ['mention:write']]
@@ -25,8 +26,8 @@ class Mention
     #[Groups(['mention:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['mention:read','mention:write'])]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['card:read', 'mention:read','mention:write'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'mentions')]
