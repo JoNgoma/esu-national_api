@@ -40,7 +40,7 @@ class Domain
      * @var Collection<int, University>
      */
     #[ORM\ManyToMany(targetEntity: University::class, inversedBy: 'domains')]
-    #[Groups(['domain:read', 'domain:write'])]
+    #[Groups(['domain:read'])]
     private Collection $university;
 
     /**

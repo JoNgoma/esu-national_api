@@ -39,7 +39,7 @@ class Faculte
      * @var Collection<int, University>
      */
     #[ORM\ManyToMany(targetEntity: University::class, inversedBy: 'facultes')]
-    #[Groups(['faculte:read', 'faculte:write'])]
+    #[Groups(['faculte:read'])]
     private Collection $university;
 
     /**
